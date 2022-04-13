@@ -11,10 +11,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
   m_Name: ModConfig
   m_EditorClassIdentifier: 
-  id: 
-  title: 
-  author: 
-  description: 
+  id: ktWordle
+  title: KTWordle
+  author: tandyCake
+  description: "Who needs words when you've got Hexamaze, Big Circle, Switches, \u2756,
+    Totally Accurate Minecraft Simulator?\n\nModule by tandyCake\nIdea by Deaf\nmoduleId:
+    ktWordle\nManual can be found at ktane.timwi.de"
   version: 
   outputFolder: build
   previewImage: {fileID: 0}
