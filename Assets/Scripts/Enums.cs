@@ -1,7 +1,7 @@
 ﻿public enum InfoType
 { 
     Author, 
-    Date, 
+    ReleaseYear, 
     DefuserDiff, 
     ExpertDiff, 
     TPScore 
@@ -12,15 +12,15 @@ public enum IconType
     Incorrect, 
     WrongPos, 
     Higher, 
-    Lower 
+    Lower,
 }
 
 public enum Difficulty
 {
-    Very_Easy,
+    VeryEasy,
     Easy,
     Medium,
     Hard,
-    Very_Hard
+    VeryHard
 }
 
