@@ -50,7 +50,7 @@ public struct ModuleInfo {
         //Check if the symbol isn't filled in.
         if (json.ContainsKey("Symbol"))
         {
-            symbol = (string)json["Symbol"];
+            symbol = ((string)json["Symbol"]).ToUpperInvariant();
             if (symbol.Length > 4)
                 isUsable = false;
         }
@@ -61,7 +61,6 @@ public struct ModuleInfo {
         }
 
         
-        Debug.Log(name);
 
         //Check if mod has TP support and get its score.
         if (json.ContainsKey("TwitchPlays"))
@@ -78,11 +77,13 @@ public struct ModuleInfo {
         //Use the first author.
         contributors = ((string)json["Author"]).Split(new[] { ", " }, System.StringSplitOptions.RemoveEmptyEntries);
         firstContributor = contributors[0];
-        Debug.Log(contributors.Join(" | "));
         
-
         defuserDifficulty = diffLookup[(string)json["DefuserDifficulty"]];
         expertDifficulty = diffLookup[(string)json["ExpertDifficulty"]];
+
+        //Do not allow translations in the mod.
+        if (json.ContainsKey("TranslationOf"))
+            isUsable = false;
     }
 
     public Dictionary<string, object> json { get; private set; }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using System.Linq;
 
 public class RepoJSONGetter : MonoBehaviour {
 
@@ -16,7 +17,7 @@ public class RepoJSONGetter : MonoBehaviour {
 	private List<ModuleInfo> _usableModules = null;
 	public List<ModuleInfo> modules { get { return _modules ?? null; } }
 	public List<ModuleInfo> usableModules { get { return _usableModules ?? null; } }
-
+	private HashSet<string> symbols = new HashSet<string>();
 	public void Set(string url, int id)
     {
 		this.url = url;
@@ -52,6 +53,18 @@ public class RepoJSONGetter : MonoBehaviour {
 					_usableModules.Add(info);
             }
         }
+
+		//Filter out duplicate symbols.
+		foreach (ModuleInfo info in _usableModules.ToArray())
+        {
+			if (!symbols.Add(info.symbol))
+            {
+				Log("Duplicate symbol {0} on modules {1}. Please notify the repo maintainers about this.", info.symbol, 
+					_usableModules.Where(x => x.symbol == info.symbol).Select(x => x.name).Join(" and "));
+				_usableModules.Remove(info);
+            }
+        }
+		
 
     }
 	void Log(string message, params object[] args)

@@ -9,6 +9,12 @@ using KModkit;
 
 public class KtaneWordleScript : MonoBehaviour {
 
+    private const int NUMBER_OF_GUESSES = 8;
+
+    private static bool hasLoadedModules = false;
+    private static List<ModuleInfo> modulesFiltered;
+    private static Dictionary<string, ModuleInfo> modLookup;
+
     private const string REPO_URL = "https://ktane.timwi.de/json/raw";
     public KMBombInfo Bomb;
     public KMAudio Audio;
@@ -25,11 +31,10 @@ public class KtaneWordleScript : MonoBehaviour {
     int moduleId;
     private bool moduleSolved;
     private bool active = false;
-
-    private static bool loadedModules = false;
-    private static ModuleInfo[] allModules = null;
-    private static ModuleInfo[] modulesFiltered = null;
     
+    private int guessesRemaining;
+    private ModuleInfo solutionMod;
+
 
     void Awake () {
         moduleId = moduleIdCounter++;
@@ -44,9 +49,15 @@ public class KtaneWordleScript : MonoBehaviour {
 
     IEnumerator Start ()
     {
-        if (!loadedModules)
+        yield return LoadModules();
+        GeneratePuzzle();
+        active = true;
+    }
+    IEnumerator LoadModules()
+    {
+        if (!hasLoadedModules)
         {
-            loadedModules = true;
+            hasLoadedModules = true;
             RepoJSONGetter getter = gameObject.AddComponent<RepoJSONGetter>();
             getter.Set(REPO_URL, moduleId);
             getter.Get();
@@ -58,8 +69,17 @@ public class KtaneWordleScript : MonoBehaviour {
             }
             Log("All modules gotten in {0} ms.", time * 1000);
             modNameDisp.text = "";
-            active = true;
+
+            modulesFiltered = getter.usableModules;
+
+            modLookup = modulesFiltered.ToDictionary(mod => mod.symbol);
         }
+    }
+    void GeneratePuzzle()
+    {
+        guessesRemaining = NUMBER_OF_GUESSES;
+        solutionMod = modulesFiltered.PickRandom();
+        Log("Solution word: {0}.", solutionMod.name);
     }
 
     void Update ()
@@ -85,6 +105,15 @@ public class KtaneWordleScript : MonoBehaviour {
     }
     void Submit()
     {
+        string submitted = symbolDisp.text;
+        symbolDisp.text = "";
+        if (submitted.Length == 0)
+            return;
+        if (!modLookup.ContainsKey(submitted.ToUpperInvariant()))
+        {
+            Log("Attempted to query: {0}, which is not an available symbol. Strike.", submitted);
+            Module.HandleStrike();
+        }
 
     }
     void Log(string message, params object[] args)
