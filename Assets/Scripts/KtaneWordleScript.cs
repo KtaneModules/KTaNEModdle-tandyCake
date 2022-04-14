@@ -12,13 +12,14 @@ public class KtaneWordleScript : MonoBehaviour {
     private const int NUMBER_OF_GUESSES = 8;
     private const string REPO_URL = "https://ktane.timwi.de/json/raw";
 
+    private static RepoJSONGetter getter;
     private static bool hasLoadedModules = false;
     private static List<ModuleInfo> modulesFiltered;
     private static Dictionary<string, ModuleInfo> modLookup;
 
-    public KMBombInfo Bomb;
     public KMAudio Audio;
     public KMBombModule Module;
+    public KMSelectable Selectable;
 
     private static readonly Dictionary<IconType, Color> colors = new Dictionary<IconType, Color>()
     {
@@ -39,7 +40,8 @@ public class KtaneWordleScript : MonoBehaviour {
     private static int moduleIdCounter = 1;
     private int moduleId;
     private bool moduleSolved;
-    private bool acceptingInput = false;
+
+    private bool selected, acceptingInput;
     
     private int guessesRemaining;
     private ModuleInfo solutionMod;
@@ -51,6 +53,10 @@ public class KtaneWordleScript : MonoBehaviour {
         moduleId = moduleIdCounter++;
         up.OnInteract += () => { ButtonPress(up, +1); return false; };
         down.OnInteract += () => { ButtonPress(down, -1); return false; };
+        Selectable.OnFocus += () => selected = true;
+        Selectable.OnDefocus += () => selected = false;
+        if (Application.isEditor)
+            selected = true;
     }
 
     void ButtonPress(KMSelectable btn, int modifier)
@@ -80,7 +86,7 @@ public class KtaneWordleScript : MonoBehaviour {
         if (!hasLoadedModules)
         {
             hasLoadedModules = true;
-            RepoJSONGetter getter = gameObject.AddComponent<RepoJSONGetter>();
+            getter = gameObject.AddComponent<RepoJSONGetter>();
             getter.Set(REPO_URL, moduleId);
             getter.Get();
             float time = 0;
@@ -110,7 +116,7 @@ public class KtaneWordleScript : MonoBehaviour {
 
     void Update ()
     {
-        if (!acceptingInput || moduleSolved)
+        if (!selected || !acceptingInput || moduleSolved)
             return;
         for (int i = 0; i < 26; i++)
             if (Input.GetKeyDown(KeyCode.A + i))
@@ -184,7 +190,7 @@ public class KtaneWordleScript : MonoBehaviour {
     void LogInputs()
     {
         Log("Moddle {0} {1}/{2}", moduleId, guessesRemaining == 0 ? "X" : (NUMBER_OF_GUESSES - guessesRemaining).ToString(), NUMBER_OF_GUESSES);
-        Log("");
+        Log(" ");
         foreach (QueryInfo query in queries)
             Log(query.ToString());
     }
