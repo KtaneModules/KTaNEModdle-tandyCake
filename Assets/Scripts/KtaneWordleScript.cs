@@ -80,6 +80,8 @@ public class KtaneWordleScript : MonoBehaviour {
         guessesRemaining = NUMBER_OF_GUESSES;
         solutionMod = modulesFiltered.PickRandom();
         Log("Solution word: {0}.", solutionMod.name);
+        modNameDisp.text = "";
+        remainingMovesDisp.text = guessesRemaining.ToString();
     }
 
     void Update ()
