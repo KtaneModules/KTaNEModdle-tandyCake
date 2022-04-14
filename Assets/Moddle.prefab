@@ -324,7 +324,7 @@ GameObject:
   - component: {fileID: 114139553842080666}
   - component: {fileID: 114377523216878748}
   m_Layer: 0
-  m_Name: KTWordle
+  m_Name: Moddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1745,8 +1745,8 @@ MonoBehaviour:
   m_Script: {fileID: -119419473, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ModuleType: ktWordle
-  ModuleDisplayName: KTWordle
+  ModuleType: moddle
+  ModuleDisplayName: Moddle
   RequiresTimerVisibility: 0
 --- !u!114 &114907837735438752
 MonoBehaviour:
