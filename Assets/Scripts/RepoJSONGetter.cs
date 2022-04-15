@@ -6,11 +6,13 @@ using System.Linq;
 
 public class RepoJSONGetter : MonoBehaviour {
 
-	public class ktaneData
+	private class ktaneData
 	{
 		public List<Dictionary<string, object>> KtaneModules { get; set; }
 	}
 
+	private bool _success = false;
+	public bool success { get { return _success; } } 
 	private string url;
 	private int id;
 	private List<ModuleInfo> _modules = null;
@@ -29,16 +31,21 @@ public class RepoJSONGetter : MonoBehaviour {
     }
 	IEnumerator GetFromRepo()
     {
+		string raw;
 		WWW request = new WWW(url);
 		yield return request;
 		if (request.error != null)
         {
-			Log("Connection error!");
-			//Set default mods here.
-			yield break;
+			Log("Connection error! Resorting to hardcoded /json/raw dated 04-15-2022");
+			raw = KtaneWordleScript.getJson.text;
+			_success = false;
         }
-		Debug.Log("Gotten info!");
-		string raw = request.text;
+        else
+        {
+			Debug.Log("Gotten info!");
+			raw = request.text;
+			_success = true;
+        }
 		ktaneData deserial = JsonConvert.DeserializeObject<ktaneData>(raw);
 		_modules = new List<ModuleInfo>(deserial.KtaneModules.Count);
 		_usableModules = new List<ModuleInfo>();

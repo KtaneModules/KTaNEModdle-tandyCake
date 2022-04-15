@@ -2170,6 +2170,7 @@ MonoBehaviour:
   Audio: {fileID: 114915473299363512}
   Module: {fileID: 114853960920223876}
   Selectable: {fileID: 114139553842080666}
+  defaultJson: {fileID: 4900000, guid: c1aba6e2d52fd674ca443b4ee4d41ca5, type: 3}
   up: {fileID: 114183548319009030}
   down: {fileID: 114202965414482806}
   squares:

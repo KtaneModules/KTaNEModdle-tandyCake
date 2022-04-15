@@ -17,6 +17,6 @@ MonoBehaviour:
   description: "Who needs words when you've got Hexamaze, Big Circle, Switches, Boozleage,
     \u2756, Totally Accurate Minecraft Simulator, ...?\n\nModule by tandyCake\nIdea
     by Deaf\nmoduleId: moddle\nManual can be found at ktane.timwi.de"
-  version: 1.1.2
+  version: 1.2.0
   outputFolder: build
   previewImage: {fileID: 2800000, guid: d20f53e33f525f240a3598aa0671bf44, type: 3}

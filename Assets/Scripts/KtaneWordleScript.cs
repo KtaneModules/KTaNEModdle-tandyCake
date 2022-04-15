@@ -29,6 +29,8 @@ public class KtaneWordleScript : MonoBehaviour {
        { IconType.Higher, new Color32(114,156,165,255) },
        { IconType.Lower, new Color32(114,156,165,255) }
     };
+    public TextAsset defaultJson;
+    public static TextAsset getJson { get { return FindObjectOfType<KtaneWordleScript>().defaultJson; } }
 
     public KMSelectable up, down;
     public MeshRenderer[] squares;
@@ -83,7 +85,7 @@ public class KtaneWordleScript : MonoBehaviour {
     }
     IEnumerator LoadModules()
     {
-        if (getter == null)
+        if (getter == null || (doneLoadingMods && !getter.success))
         {
             getter = gameObject.AddComponent<RepoJSONGetter>();
             getter.Set(REPO_URL, moduleId);
@@ -117,18 +119,19 @@ public class KtaneWordleScript : MonoBehaviour {
 
     void Update ()
     {
-        if (!selected || !acceptingInput || moduleSolved)
-            return;
-        for (int i = 0; i < 26; i++)
-            if (Input.GetKeyDown(KeyCode.A + i))
-                AddCharToSymbol((char)('A' + i));
-        for (int i = 0; i < 10; i++)
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
-                AddCharToSymbol((char)('0' + i));
-        if (Input.GetKeyDown(KeyCode.Backspace) && symbolDisp.text.Length != 0)
-            symbolDisp.text = symbolDisp.text.Substring(0, symbolDisp.text.Length - 1);
-        if (Input.GetKeyDown(KeyCode.Return))
-            Submit();
+        if (selected && acceptingInput && !moduleSolved)
+        {
+            for (int i = 0; i < 26; i++)
+                if (Input.GetKeyDown(KeyCode.A + i))
+                    AddCharToSymbol((char)('A' + i));
+            for (int i = 0; i < 10; i++)
+                if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
+                    AddCharToSymbol((char)('0' + i));
+            if (Input.GetKeyDown(KeyCode.Backspace) && symbolDisp.text.Length != 0)
+                symbolDisp.text = symbolDisp.text.Substring(0, symbolDisp.text.Length - 1);
+            if (Input.GetKeyDown(KeyCode.Return))
+                Submit();
+        }
     }
     void AddCharToSymbol(char ch)
     {
@@ -144,8 +147,16 @@ public class KtaneWordleScript : MonoBehaviour {
             return;
         if (!modLookup.ContainsKey(submitted.ToUpperInvariant()))
         {
-            Log("Attempted to query: {0}, which is not an available symbol. Strike.", submitted);
-            Module.HandleStrike();
+            if (getter.success)
+            {
+                Log("Attempted to query: {0}, which is not an available symbol. Strike.", submitted);
+                Module.HandleStrike();
+            }
+            else
+            {
+                Log("Attempted to query: {0}, which is not an available symbol. No strike given because the getter failed to connect.", submitted);
+                modNameDisp.text = "ENTER A MOD PRIOR TO 4/15/2022";   
+            }
         }
         else
         {
@@ -182,6 +193,7 @@ public class KtaneWordleScript : MonoBehaviour {
 
     void Solve()
     {
+        moduleSolved = true;
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
         Module.HandlePass();
         LogInputs();
