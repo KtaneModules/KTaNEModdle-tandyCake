@@ -44,7 +44,7 @@ public struct ModuleInfo {
         if (json.ContainsKey("Symbol"))
         {
             symbol = ((string)json["Symbol"]).ToUpperInvariant();
-            if (symbol.Length > 4)
+            if (symbol.Length > 4 || symbol.Any(ch => !char.IsDigit(ch) && !char.IsLetter(ch)))
                 isUsable = false;
         }
         else
