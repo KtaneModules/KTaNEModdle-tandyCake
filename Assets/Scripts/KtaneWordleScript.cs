@@ -13,7 +13,7 @@ public class KtaneWordleScript : MonoBehaviour {
     private const string REPO_URL = "https://ktane.timwi.de/json/raw";
 
     private static RepoJSONGetter getter;
-    private static bool hasLoadedModules = false;
+    private static bool doneLoadingMods;
     private static List<ModuleInfo> modulesFiltered;
     private static Dictionary<string, ModuleInfo> modLookup;
 
@@ -83,9 +83,8 @@ public class KtaneWordleScript : MonoBehaviour {
     }
     IEnumerator LoadModules()
     {
-        if (!hasLoadedModules)
+        if (getter == null)
         {
-            hasLoadedModules = true;
             getter = gameObject.AddComponent<RepoJSONGetter>();
             getter.Set(REPO_URL, moduleId);
             getter.Get();
@@ -99,9 +98,11 @@ public class KtaneWordleScript : MonoBehaviour {
             modNameDisp.text = "";
 
             modulesFiltered = getter.usableModules;
-
             modLookup = modulesFiltered.ToDictionary(mod => mod.symbol);
+            doneLoadingMods = true;
         }
+        while (!doneLoadingMods)
+            yield return null;
     }
     void GeneratePuzzle()
     {
@@ -181,7 +182,6 @@ public class KtaneWordleScript : MonoBehaviour {
 
     void Solve()
     {
-        moduleSolved = true;
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
         Module.HandlePass();
         LogInputs();
@@ -253,18 +253,41 @@ public class KtaneWordleScript : MonoBehaviour {
     }
 
     #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"Use <!{0} foobar> to do something.";
+    private readonly string TwitchHelpMessage = @"Use [!{0} enter Mdl] to submit that word into the module. Use [!{0} up/down] to press that button; specify a number after to press it that many times.";
     #pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand (string command)
     {
         command = command.Trim().ToUpperInvariant();
-        List<string> parameters = command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        yield return null;
+        Match m1 = Regex.Match(command, @"^(UP|DOWN)(?:\s+|$)([1-9]?)$");
+        Match m2 = Regex.Match(command, @"^ENTER\s+([A-Z0-9]{1,4})$");
+        if (m1.Success)
+        {
+            yield return null;
+            yield return new WaitUntil(() => acceptingInput);
+            int timesPress = m1.Groups[2].Length > 0 ? int.Parse(m1.Groups[2].Value) : 1;
+            for (int i = 0; i < timesPress; i++)
+            {
+                (m1.Groups[1].Value == "UP" ? up : down).OnInteract();
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+        else if (m2.Success)
+        {
+            yield return null;
+            yield return new WaitUntil(() => acceptingInput);
+            symbolDisp.text = "";
+            foreach (char ch in m2.Groups[1].Value)
+            {
+                AddCharToSymbol(ch);
+                yield return new WaitForSeconds(0.15f);
+            }
+            Submit();
+        }
     }
 
     IEnumerator TwitchHandleForcedSolve ()
     {
-        yield return null;
+        yield return ProcessTwitchCommand("Enter " + solutionMod.symbol);
     }
 }
