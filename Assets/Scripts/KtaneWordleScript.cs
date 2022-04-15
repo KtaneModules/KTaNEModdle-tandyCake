@@ -260,7 +260,7 @@ public class KtaneWordleScript : MonoBehaviour {
     {
         command = command.Trim().ToUpperInvariant();
         Match m1 = Regex.Match(command, @"^(UP|DOWN)(?:\s+|$)([1-9]?)$");
-        Match m2 = Regex.Match(command, @"^ENTER\s+([A-Z0-9]{1,4})$");
+        Match m2 = Regex.Match(command, @"^(?:ENTER\s+)?([A-Z0-9]{1,4})$");
         if (m1.Success)
         {
             yield return null;
