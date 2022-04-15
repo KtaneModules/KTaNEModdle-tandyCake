@@ -108,7 +108,7 @@ public class KtaneWordleScript : MonoBehaviour {
     {
         guessesRemaining = NUMBER_OF_GUESSES;
         solutionMod = modulesFiltered.PickRandom();
-        Log("Solution module: {0}.", solutionMod.name);
+        Log("Solution module: {0}.", solutionMod);
 
         queries.Clear();
         modNameDisp.text = "";
@@ -167,7 +167,7 @@ public class KtaneWordleScript : MonoBehaviour {
 
         foreach (var pair in GetGuessResult(sub))
             yield return FlipSquare((int)pair.a, pair.b, false);
-        if (sub.Equals(solutionMod))
+        if (sub.name == solutionMod.name)
             Solve();
         else if (guessesRemaining == 0)
         {
