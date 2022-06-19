@@ -12,6 +12,7 @@ public class KtaneWordleScript : MonoBehaviour {
     private const int NUMBER_OF_GUESSES = 8;
     private const string REPO_URL = "https://ktane.timwi.de/json/raw";
 
+    //Receives
     private static RepoJSONGetter getter;
     private static bool doneLoadingMods;
     private static List<ModuleInfo> modulesFiltered;
@@ -23,11 +24,11 @@ public class KtaneWordleScript : MonoBehaviour {
 
     private static readonly Dictionary<IconType, Color> colors = new Dictionary<IconType, Color>()
     {
-       { IconType.Correct, new Color32(106,170,100,255) },
-       { IconType.Incorrect, new Color32(120,124,126,255) } ,
-       { IconType.WrongPos, new Color32(201,180,88,255) },
-       { IconType.Higher, new Color32(114,156,165,255) },
-       { IconType.Lower, new Color32(114,156,165,255) }
+       { IconType.Correct, new Color32(106,170,100,255) }, //Green
+       { IconType.Incorrect, new Color32(120,124,126,255) }, //Gray
+       { IconType.WrongPos, new Color32(201,180,88,255) }, //Yellow
+       { IconType.Higher, new Color32(114,156,165,255) }, //Blue
+       { IconType.Lower, new Color32(114,156,165,255) } //Blue
     };
     public TextAsset defaultJson;
     public static TextAsset getJson { get { return FindObjectOfType<KtaneWordleScript>().defaultJson; } }

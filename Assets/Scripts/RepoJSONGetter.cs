@@ -6,20 +6,32 @@ using System.Linq;
 
 public class RepoJSONGetter : MonoBehaviour {
 
+	//Container class for JsonConvert.DeserializeObject<T>.
 	private class ktaneData
 	{
 		public List<Dictionary<string, object>> KtaneModules { get; set; }
 	}
 
+	//Stores whether or not the getter was able to retrieve the json.
 	private bool _success = false;
 	public bool success { get { return _success; } } 
+
+	//Stores the URL of the JSON that is grabbed.
 	private string url;
+	//Stores the module ID of the module which is hosting the getter.
+	//Used for logging purposes.
 	private int id;
+	//Stores all of the ModuleInfos taken from the repo JSON.
 	private List<ModuleInfo> _modules = null;
+	//Only stores the ModuleInfos which have their isUsable property true and are not duplicate symbols.
 	private List<ModuleInfo> _usableModules = null;
 	public List<ModuleInfo> modules { get { return _modules ?? null; } }
 	public List<ModuleInfo> usableModules { get { return _usableModules ?? null; } }
+	//Stores all of the periodic table symbols of the modules on the repo.
+    //If this HashSet already contains a symbol, only the first instance of it is added to _usableModules and can be used.
 	private HashSet<string> symbols = new HashSet<string>();
+
+	//Effectively serves as a constructor, since MonoBehaviours can only be instantiated with Instantiate or AddComponent.
 	public void Set(string url, int id)
     {
 		this.url = url;
@@ -31,9 +43,12 @@ public class RepoJSONGetter : MonoBehaviour {
     }
 	IEnumerator GetFromRepo()
     {
+		//Stores the raw text of the grabbed json.
 		string raw;
 		WWW request = new WWW(url);
+		//Waits until the WWW request returns the JSON file.
 		yield return request;
+		//If an error occurs, we need to default to the hardcoded file.
 		if (request.error != null)
         {
 			Log("Connection error! Resorting to hardcoded /json/raw dated 04-15-2022");
@@ -46,10 +61,12 @@ public class RepoJSONGetter : MonoBehaviour {
 			raw = request.text;
 			_success = true;
         }
+		//Turns the raw JSON into an instance of the container class, which contains a List of Dictionaries.
 		ktaneData deserial = JsonConvert.DeserializeObject<ktaneData>(raw);
 		_modules = new List<ModuleInfo>(deserial.KtaneModules.Count);
 		_usableModules = new List<ModuleInfo>();
 
+		//Iterates for each module in the JSON.
 		foreach (var dict in deserial.KtaneModules)
         {
 			ModuleInfo info = new ModuleInfo(dict);
@@ -74,6 +91,9 @@ public class RepoJSONGetter : MonoBehaviour {
 		
 
     }
+
+	//Logs a message accepted by the LFA.
+	//Uses the moduleID of the Moddle instance that is hosting this.
 	void Log(string message, params object[] args)
 	{
 		Debug.LogFormat("[Moddle #{0}] {1}", id, string.Format(message, args));

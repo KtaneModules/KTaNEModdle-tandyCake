@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 
 public class QueryInfo {
+
+    //Contains the corresponding character to display on the square for each type of response. 
     private static Dictionary<IconType, string> sharingIcons = new Dictionary<IconType, string>()
     {
         { IconType.Correct, "🟩" },
@@ -12,7 +14,9 @@ public class QueryInfo {
         { IconType.Higher, "🔼" },
         { IconType.Lower, "🔽" }
     };
+    //Stores the module that was entered to get this result
     public ModuleInfo submission { get; private set; }
+    //Stores the info that's displayed on the squares.
     public IconType[] results { get; private set; }
     public QueryInfo(ModuleInfo submission, IconType[] results)
     {
