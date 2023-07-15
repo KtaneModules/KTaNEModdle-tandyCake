@@ -200,7 +200,7 @@ public class KtaneWordleScript : MonoBehaviour {
             else
             {
                 Log("Attempted to query: {0}, which is not an available symbol. No strike given because the getter failed to connect.", submitted);
-                modNameDisp.text = "ENTER A MOD PRIOR TO 06/20/2022";   
+                modNameDisp.text = "ENTER A MOD PRIOR TO 07/15/2023";   
             }
         }
         //else guess the mod that you submitted.    

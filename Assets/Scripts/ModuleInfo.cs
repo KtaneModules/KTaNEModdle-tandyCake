@@ -19,13 +19,14 @@ public struct ModuleInfo {
     };
 
     //Converts a JSON entry as listed in ktane.timwi.de/json/raw to a usable member of the class.
-    public ModuleInfo(Dictionary<string, object> json)
+    public ModuleInfo(KtaneModule module)
     {
         isUsable = true;
-        this.json = json;
 
-        //We only want solvable modules;
-        if ((string)json["Type"] != "Regular")
+        name = module.Name;
+        //We only want solvable modules; 
+        //Also, there's about 9 modules that have "DisplayName" set instead of "Name", so ignore those.
+        if (module.Type != "Regular" || module.Name == null)
         {
             isRegular = false;
             isUsable = false;
@@ -41,12 +42,10 @@ public struct ModuleInfo {
         }
         else isRegular = true;
 
-        name = (string)json["Name"];
-        
         //Check if the symbol isn't filled in.
-        if (json.ContainsKey("Symbol"))
+        if (module.Symbol != null)
         {
-            symbol = ((string)json["Symbol"]).ToUpperInvariant();
+            symbol = module.Symbol.ToUpperInvariant();
             if (symbol.Length > 4 || symbol.Any(ch => !char.IsDigit(ch) && !char.IsLetter(ch)))
                 isUsable = false;
         }
@@ -56,37 +55,34 @@ public struct ModuleInfo {
             symbol = null;
         }
 
-        
+
 
         //Check if mod has TP support and get its score.
-        if (json.ContainsKey("TwitchPlays"))
-        {
-            JObject tp = (JObject)json["TwitchPlays"];
-            tpScore = tp["Score"].ToObject<int>();
-        }
+        if (module.TwitchPlays != null)
+            tpScore = module.TwitchPlays.Score;
         else
         {
             isUsable = false;
             tpScore = -1;
         }
-        
+
         //Use the first author.
-        contributors = ((string)json["Author"]).Split(new[] { ", " }, System.StringSplitOptions.RemoveEmptyEntries);
-        firstContributor = contributors[0];
+        string[] authorFieldContributors = module.Author.Split(new[] { ", " }, System.StringSplitOptions.RemoveEmptyEntries);
+        firstContributor = authorFieldContributors[0];
+        if (module.Contributors == null)
+            contributors = authorFieldContributors;
+        else contributors = module.Contributors.GetAllContributors().ToArray();
 
         //Take only the year of the publish date.
-        date = DateTime.ParseExact((string)json["Published"], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        date = DateTime.ParseExact(module.Published, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
-        defuserDifficulty = diffLookup[(string)json["DefuserDifficulty"]];
-        expertDifficulty = diffLookup[(string)json["ExpertDifficulty"]];
+        defuserDifficulty = diffLookup[module.DefuserDifficulty];
+        expertDifficulty = diffLookup[module.ExpertDifficulty];
 
         //Do not allow translations in the mod.
-        if (json.ContainsKey("TranslationOf"))
+        if (module.TranslationOf != null)
             isUsable = false;
     }
-
-    //Stores the json represented as a dictionary as made by Newtonsoft.Json
-    public Dictionary<string, object> json { get; private set; }
 
     //Stores the display name of the module this represents.
     public string name { get; private set; }

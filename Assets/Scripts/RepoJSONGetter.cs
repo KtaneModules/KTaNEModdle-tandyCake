@@ -1,16 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Newtonsoft.Json;
+using UnityEngine.Networking;
 using System.Linq;
 
 public class RepoJSONGetter : MonoBehaviour {
 
-	//Container class for JsonConvert.DeserializeObject<T>.
-	private class ktaneData
-	{
-		public List<Dictionary<string, object>> KtaneModules { get; set; }
-	}
 
 	//Stores whether or not the getter was able to retrieve the json.
 	private bool _success = false;
@@ -45,29 +40,30 @@ public class RepoJSONGetter : MonoBehaviour {
     {
 		//Stores the raw text of the grabbed json.
 		string raw;
-		WWW request = new WWW(url);
-		//Waits until the WWW request returns the JSON file.
-		yield return request;
+		UnityWebRequest request = UnityWebRequest.Get(url);
+		//Waits until the web request returns the JSON file.
+		yield return request.SendWebRequest();
 		//If an error occurs, we need to default to the hardcoded file.
 		if (request.error != null)
-        {
-			Log("Connection error! Resorting to hardcoded /json/raw dated 04-15-2022");
+		{
+			Log("Connection error! Resorting to hardcoded /json/raw dated July 15, 2023");
+			Debug.LogFormat("<Moddle #{0}> Connection error: {1}", id, request.error);
 			raw = KtaneWordleScript.getJson.text;
 			_success = false;
         }
         else
         {
 			Debug.Log("Gotten info!");
-			raw = request.text;
+			raw = request.downloadHandler.text;
 			_success = true;
         }
 		//Turns the raw JSON into an instance of the container class, which contains a List of Dictionaries.
-		ktaneData deserial = JsonConvert.DeserializeObject<ktaneData>(raw);
-		_modules = new List<ModuleInfo>(deserial.KtaneModules.Count);
+		List<KtaneModule> modData = RepoJSONParser.ParseRaw(raw);
+		_modules = new List<ModuleInfo>(modData.Count);
 		_usableModules = new List<ModuleInfo>();
 
 		//Iterates for each module in the JSON.
-		foreach (var dict in deserial.KtaneModules)
+		foreach (var dict in modData)
         {
 			ModuleInfo info = new ModuleInfo(dict);
 			if (info.isRegular)
